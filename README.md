@@ -158,4 +158,5 @@ ds3.txt: MapReduce and Spark are used for Big Data processing
 
 ***Output with 3 datanodes:***
 
+<img width="1408" height="390" alt="image" src="https://github.com/user-attachments/assets/f28b76bf-79a9-4b2c-a173-d07b7eca918c" />
 
