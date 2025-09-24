@@ -1,0 +1,5 @@
+Document1 Data science combines statistics, programming, and domain knowledge to extract insights from raw information
+Document2 Cloud computing enables scalable storage and computation across distributed servers making analysis faster
+Document3 Hadoop MapReduce splits large files into smaller chunks and processes them in parallel for efficiency
+Document4 Artificial intelligence includes machine learning deep learning and natural language processing
+Document5 Cybersecurity protects systems networks and data from unauthorized access vulnerabilities and attacks

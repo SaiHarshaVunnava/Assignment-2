@@ -1,0 +1,6 @@
+Document1 Renewable energy sources such as solar wind and hydro are crucial for sustainable development and climate change mitigation
+Document2 Electric vehicles rely on batteries and charging infrastructure creating new challenges for energy distribution
+Document3 The Internet of Things connects smart devices sensors and applications to automate processes and improve efficiency
+Document4 Blockchain technology provides transparency security and immutability across digital transactions and ledgers
+Document5 Big data analytics uses large scale data platforms like Spark Hadoop and NoSQL to process high velocity diverse information
+Document6 Quantum computing promises exponential speedups for cryptography optimization and machine learning problems
