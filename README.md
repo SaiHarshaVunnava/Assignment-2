@@ -1,142 +1,160 @@
-# Assignment 2: Document Similarity using MapReduce
+## **Assignment 2: Document Similarity using MapReduce**
 
-**Name:** 
+ **Name: Sai Harsha Vunnava**
+ 
+ **Student ID:801418991**
 
-**Student ID:** 
+**📌 Project Overview**
 
-## Approach and Implementation
+This project implements a Hadoop MapReduce application that computes document similarity between text files using Jaccard similarity. The program takes multiple text files as input, processes them in a distributed Hadoop cluster, and outputs similarity scores between every pair of documents.
 
-### Mapper Design
-[Explain the logic of your Mapper class. What is its input key-value pair? What does it emit as its output key-value pair? How does it help in solving the overall problem?]
+## ⚙️ Approach and Implementation
 
-### Reducer Design
-[Explain the logic of your Reducer class. What is its input key-value pair? How does it process the values for a given key? What does it emit as the final output? How do you calculate the Jaccard Similarity here?]
+***Mapper Design***
 
-### Overall Data Flow
-[Describe how data flows from the initial input files, through the Mapper, shuffle/sort phase, and the Reducer to produce the final output.]
+- Input: Each line of a document (document ID and words).
 
----
+- Logic: The mapper tokenizes the words and emits intermediate key-value pairs representing document IDs and words.
+
+- Output: Document ID as the key and words (comma-separated) as the value.
+
+***Reducer Design***
+
+- Input: Key = Document pair, Values = word sets.
+
+- Logic: For each pair of documents, the reducer calculates the intersection and union of words.
+
+- Output: Key = (doc1, doc2), Value = Jaccard similarity score (intersection / union).
+
+***Overall Data Flow***
+
+1. Input datasets (ds1.txt, ds2.txt, ds3.txt) are uploaded into HDFS.
+2. Mapper reads and emits document-word sets.
+3. Shuffle & sort groups words by document pairs.
+4. Reducer calculates Jaccard similarity for each pair and writes results into HDFS output.
 
 ## Setup and Execution
 
-### ` Note: The below commands are the ones used for the Hands-on. You need to edit these commands appropriately towards your Assignment to avoid errors. `
-
-### 1. **Start the Hadoop Cluster**
+### 1. *Start the Hadoop Cluster*
 
 Run the following command to start the Hadoop cluster:
 
 ```bash
 docker compose up -d
+
 ```
 
-### 2. **Build the Code**
+### 2. *Build the Code*
 
 Build the code using Maven:
 
 ```bash
-mvn clean package
+mvn clean install
 ```
 
-### 4. **Copy JAR to Docker Container**
+This generates the JAR:
+
+```bash
+target/DocumentSimilarity-0.0.1-SNAPSHOT.jar
+```
+
+### 3. *Copy JAR to Docker Container*
 
 Copy the JAR file to the Hadoop ResourceManager container:
 
 ```bash
-docker cp target/WordCountUsingHadoop-0.0.1-SNAPSHOT.jar resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/
+docker cp target/DocumentSimilarity-0.0.1-SNAPSHOT.jar resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/
+docker cp datasets/ resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/
 ```
 
-### 5. **Move Dataset to Docker Container**
-
-Copy the dataset to the Hadoop ResourceManager container:
-
-```bash
-docker cp shared-folder/input/data/input.txt resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/
-```
-
-### 6. **Connect to Docker Container**
-
-Access the Hadoop ResourceManager container:
-
+### 4. Connect to ResourceManager Container
 ```bash
 docker exec -it resourcemanager /bin/bash
-```
-
-Navigate to the Hadoop directory:
-
-```bash
 cd /opt/hadoop-3.2.1/share/hadoop/mapreduce/
 ```
 
-### 7. **Set Up HDFS**
-
-Create a folder in HDFS for the input dataset:
-
+### 5. Set Up HDFS
 ```bash
-hadoop fs -mkdir -p /input/data
+hadoop fs -mkdir -p /input/dataset
+hadoop fs -put ./datasets /input/dataset
 ```
 
-Copy the input dataset to the HDFS folder:
-
+### 6. Run the MapReduce Job
 ```bash
-hadoop fs -put ./input.txt /input/data
+hadoop jar DocumentSimilarity-0.0.1-SNAPSHOT.jar com.example.controller.DocumentSimilarityDriver /input/dataset/datasets /output
+```
+### 7. View the Output
+```bash
+hadoop fs -cat /output/*
 ```
 
-### 8. **Execute the MapReduce Job**
-
-Run your MapReduce job using the following command: Here I got an error saying output already exists so I changed it to output1 instead as destination folder
-
+### ✅ Obtained Output:
 ```bash
-hadoop jar /opt/hadoop-3.2.1/share/hadoop/mapreduce/WordCountUsingHadoop-0.0.1-SNAPSHOT.jar com.example.controller.Controller /input/data/input.txt /output1
+(ds2.txt, ds1.txt)      -> 0.11
+(ds3.txt, ds1.txt)      -> 0.03
+(ds3.txt, ds2.txt)      -> 0.22
 ```
 
-### 9. **View the Output**
 
-To view the output of your MapReduce job, use:
 
+### 8. Copy Output Back to Local Machine
+
+Inside the container:
 ```bash
-hadoop fs -cat /output1/*
+hdfs dfs -get /output /opt/hadoop-3.2.1/share/hadoop/mapreduce/
+exit
 ```
 
-### 10. **Copy Output from HDFS to Local OS**
+From host:
+```bash
+docker cp resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/output/ output/
+```
+### ⚡ Challenges and Solutions
 
-To copy the output from HDFS to your local machine:
+**Challenge: **Initial ClassNotFoundException because source files were under src/main/com/... instead of src/main/java/com/....
 
-1. Use the following command to copy from HDFS:
-    ```bash
-    hdfs dfs -get /output1 /opt/hadoop-3.2.1/share/hadoop/mapreduce/
-    ```
+***Solution:*** Moved the package to the correct Maven structure (src/main/java).
 
-2. use Docker to copy from the container to your local machine:
-   ```bash
-   exit 
-   ```
-    ```bash
-    docker cp resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/output1/ shared-folder/output/
-    ```
-3. Commit and push to your repo so that we can able to see your output
+***Challenge:*** JAR was empty on first build.
 
+***Solution:*** Fixed pom.xml with proper build plugins and rebuilt with mvn clean install.
 
+***Challenge:*** Output directory conflict in HDFS (File already exists).
+
+***Solution:*** Used a new output folder name each run (/output, /output1, etc.).
+
+### 📂 Sample Input
+
+Input files (ds1.txt, ds2.txt, ds3.txt)
+```bash
+ds1.txt: Hadoop MapReduce is a programming model
+ds2.txt: Apache Spark is faster than Hadoop MapReduce
+ds3.txt: MapReduce and Spark are used for Big Data processing
+```
+
+### 📂 Sample Output (Expected)
+```bash
+(Document1, Document2 Similarity: 0.56)
+(Document1, Document3 Similarity: 0.42)
+(Document2, Document3 Similarity: 0.50)
+
+```
+### ✅ Obtained Output (from HDFS)
+```bash
+(ds2.txt, ds1.txt)      -> 0.11
+(ds3.txt, ds1.txt)      -> 0.03
+(ds3.txt, ds2.txt)      -> 0.22
+```
 ---
 
-## Challenges and Solutions
 
-[Describe any challenges you faced during this assignment. This could be related to the algorithm design (e.g., how to generate pairs), implementation details (e.g., data structures, debugging in Hadoop), or environmental issues. Explain how you overcame these challenges.]
 
----
-## Sample Input
-
-**Input from `small_dataset.txt`**
-```
-Document1 This is a sample document containing words
-Document2 Another document that also has words
-Document3 Sample text with different words
-```
-## Sample Output
-
-**Output from `small_dataset.txt`**
-```
-"Document1, Document2 Similarity: 0.56"
-"Document1, Document3 Similarity: 0.42"
-"Document2, Document3 Similarity: 0.50"
-```
 ## Obtained Output: (Place your obtained output here.)
+
+***Output with 1 datanode:***
+
+
+
+***Output with 3 datanodes:***
+
+
