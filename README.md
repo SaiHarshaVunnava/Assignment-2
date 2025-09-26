@@ -160,3 +160,25 @@ ds3.txt: MapReduce and Spark are used for Big Data processing
 
 <img width="1408" height="390" alt="image" src="https://github.com/user-attachments/assets/f28b76bf-79a9-4b2c-a173-d07b7eca918c" />
 
+## 📊 Performance Comparison: 1 Node vs 3 Nodes
+
+We executed the MapReduce job on a Hadoop cluster with different node configurations and observed the following differences:
+
+| Execution Setup   | Observed Behavior | Time Taken | Notes |
+|-------------------|------------------|------------|-------|
+| **1 Node (Single Datanode)** | All computation and storage handled by a single datanode. Job ran successfully but slower due to no parallelism. | Higher execution time. | Suitable only for testing or very small datasets. |
+| **3 Nodes (Multiple Datanodes)** | Workload distributed across three datanodes. Mapper and Reducer tasks executed in parallel, improving performance. | Noticeably lower execution time. | More scalable, efficient, and fault-tolerant. |
+
+✅ **Conclusion:** Running the job on **3 nodes** significantly reduced execution time and showcased Hadoop’s true advantage—**distributed processing and scalability**.  
+Single-node execution is useful for debugging or practice, but multi-node clusters are necessary for handling larger datasets efficiently.
+
+
+## Obtained Output: (Place your obtained output here.)
+
+**Output with 1 datanode:**
+
+<img width="1392" height="375" alt="image" src="https://github.com/user-attachments/assets/cdab360a-4aa3-40d0-9b5c-e070c1fc7296" />
+
+**Output with 3 datanodes:**
+
+<img width="1381" height="362" alt="image" src="https://github.com/user-attachments/assets/80ad598f-9387-4044-bc97-bf0c8a290842" />
